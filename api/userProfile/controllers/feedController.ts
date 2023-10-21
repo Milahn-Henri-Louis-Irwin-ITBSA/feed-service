@@ -4,16 +4,16 @@ import {
   BodyParam,
   HeaderParam,
 } from 'routing-controllers';
-import { LOGGING_INFO } from '../userApiInfo';
+import { FEED_INFO } from '../feedApiInfo';
 import { Service } from 'typedi';
-import LoggingSvc from '../service/LoggingSvc';
+import FeedSvc from '../service/FeedSvc';
 import { DecodedIdToken } from 'firebase-admin/auth';
-@JsonController(LOGGING_INFO.contextPath + '/logger')
+@JsonController(FEED_INFO.contextPath + '/feed')
 @Service()
-export class LoggingController {
-  constructor(public _loggingSvc: LoggingSvc) {}
+export class FeedController {
+  constructor(public _feedSvc: FeedSvc) {}
   @Post('/submitfeed')
-  public async submitLog(
+  public async submitFeed(
     @HeaderParam('Authorization') token: string,
     @BodyParam('message') message: string,
     @BodyParam('tag') tag: string,
@@ -36,7 +36,7 @@ export class LoggingController {
       token = token.split(' ')[1];
 
       const decodedToken: DecodedIdToken | Error =
-        await this._loggingSvc.verifyToken(token);
+        await this._feedSvc.verifyToken(token);
 
       if (decodedToken instanceof Error) {
         return Promise.resolve({
@@ -44,7 +44,7 @@ export class LoggingController {
           message: 'Invalid token',
         });
       }
-      const resp = await this._loggingSvc.submitLog({
+      const resp = await this._feedSvc.submitLog({
         message,
         tag,
         location,
