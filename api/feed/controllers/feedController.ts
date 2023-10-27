@@ -4,33 +4,31 @@ import {
   BodyParam,
   HeaderParam,
 } from 'routing-controllers';
-import { FEED_INFO } from '../feedApiInfo';
+import { URL_INFO } from '../feedApiInfo';
 import { Service } from 'typedi';
 import FeedSvc from '../service/FeedSvc';
 import { DecodedIdToken } from 'firebase-admin/auth';
-@JsonController(FEED_INFO.contextPath + '/feed')
+@JsonController(URL_INFO.contextPath + '/feed')
 @Service()
 export class FeedController {
   constructor(public _feedSvc: FeedSvc) {}
   @Post('/submitfeed')
   public async submitFeed(
     @HeaderParam('Authorization') token: string,
-    @BodyParam('message') message: string,
-    @BodyParam('tag') tag: string,
-    @BodyParam('location') location: string
+    @BodyParam('message') message: string
   ): Promise<any> {
     try {
       if (!message) {
-        return Promise.reject({
+        return Promise.resolve({
           status: 400,
-          message: 'Invalid log',
+          message: 'Invalid message',
         });
       }
-      // make sure all the body params are present
-      if (!message || !tag || !location || !token) {
-        return Promise.reject({
-          status: 400,
-          message: 'Missing required body params',
+
+      if (!token) {
+        return Promise.resolve({
+          status: 401,
+          message: 'Invalid token',
         });
       }
       token = token.split(' ')[1];
@@ -44,13 +42,7 @@ export class FeedController {
           message: 'Invalid token',
         });
       }
-      const resp = await this._feedSvc.submitLog({
-        message,
-        tag,
-        location,
-        user_uid: decodedToken.uid,
-        response_code: 200,
-      });
+      const resp = await this._feedSvc.submitFeedMSG(message, decodedToken);
       return Promise.resolve({
         status: 200,
         message: 'Feed service updated successfully',
