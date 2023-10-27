@@ -1,39 +1,31 @@
-import axios from 'axios';
-import { Logger } from '../../../libs/logger';
+import { DecodedIdToken } from 'firebase-admin/auth';
+import DatabaseConnector from '../../../libs/db/FeedDB';
 import { Service } from 'typedi';
-import { UserPosts, UserObject, UserPost } from '../model/iUserinfo';
+import { Timestamp, WriteResult } from 'firebase-admin/firestore';
 
 @Service()
-export class userInfoSvc {
-  constructor() {}
+export default class LoggingSvc {
+  private db: DatabaseConnector;
+  constructor() {
+    this.db = new DatabaseConnector();
+  }
 
-  async userInfoExecuter(): Promise<Array<UserObject>> {
+  public async verifyToken(token: string): Promise<DecodedIdToken | Error> {
     try {
-      const userPostResponseList: UserPosts = await axios.get(
-        'https://gorest.co.in/public/v2/posts'
-      );
-      return Promise.resolve(userPostResponseList.data);
-    } catch (error) {
-      Logger.error(
-        'Service: userInfoExecuter',
-        'errorInfo:' + JSON.stringify(error)
-      );
-      return Promise.reject(error);
+      return await this.db.verifyJWT(token);
+    } catch (e) {
+      return new Error(e as string);
     }
   }
 
-  async userInfoExecuterById(userId?: any): Promise<UserObject> {
-    try {
-      const userPostResponse: UserPost = await axios.get(
-        `https://gorest.co.in/public/v2/posts/${userId}`
-      );
-      return Promise.resolve(userPostResponse.data);
-    } catch (error) {
-      Logger.error(
-        'Service: userInfoExecuterById',
-        'errorInfo:' + JSON.stringify(error)
-      );
-      return Promise.reject(error);
-    }
+  public async submitFeedMSG(
+    message: string,
+    user: DecodedIdToken
+  ): Promise<WriteResult> {
+    return await this.db.set({
+      created_at: Timestamp.now(),
+      message,
+      created_by: user.uid,
+    });
   }
 }

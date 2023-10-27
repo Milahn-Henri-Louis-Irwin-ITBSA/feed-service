@@ -6,6 +6,8 @@ import { rateLimit } from 'express-rate-limit';
 import Container from 'typedi';
 import { ENV_CONFIG } from '../app/config';
 import { Logger } from '../libs/logger';
+import { config } from 'dotenv';
+import admin from 'firebase-admin';
 import {
   useExpressServer,
   useContainer as routingContainer,
@@ -30,6 +32,12 @@ useExpressServer(expressApp, {
   routePrefix: ENV_CONFIG.app.apiRoot,
   defaultErrorHandler: false,
   controllers: [baseDir + `/**/controllers/*{.js,.ts}`],
+});
+
+config();
+
+admin.initializeApp({
+  credential: admin.credential.cert(process.env.GOOGLE_APPLICATION_CREDENTIALS),
 });
 
 expressApp.use(bodyParser.urlencoded({ extended: false }));
