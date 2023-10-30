@@ -6,6 +6,7 @@ import { rateLimit } from 'express-rate-limit';
 import Container from 'typedi';
 import { ENV_CONFIG } from '../app/config';
 import { Logger } from '../libs/logger';
+import { cors } from 'cors';
 import { config } from 'dotenv';
 import admin from 'firebase-admin';
 import {
@@ -19,7 +20,7 @@ const expressApp = express();
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5 minutes
   message: 'Too many requests from this IP, please try again after 5 minutes',
-  limit: 10,
+  limit: 50,
   standardHeaders: false,
   legacyHeaders: true,
 });
@@ -42,7 +43,20 @@ admin.initializeApp({
 
 expressApp.use(bodyParser.urlencoded({ extended: false }));
 expressApp.use(bodyParser.json());
-expressApp.use(limiter);
+expressApp.use(
+  cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+expressApp.use('/api/v1', limiter);
+expressApp.get('/', (req, res) => {
+  res.status(200).json({
+    service: 'feed',
+    status: 'ok',
+  });
+});
 
 const server = http.createServer(expressApp);
 server.listen(ENV_CONFIG.app.port, () => {
