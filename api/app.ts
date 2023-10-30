@@ -43,7 +43,15 @@ admin.initializeApp({
 
 expressApp.use(bodyParser.urlencoded({ extended: false }));
 expressApp.use(bodyParser.json());
-expressApp.use(cors());
+expressApp.use(
+  cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    maxAge: 86400,
+  })
+);
 expressApp.use('/api/v1', limiter);
 expressApp.get('/', (req, res) => {
   res.status(200).json({
