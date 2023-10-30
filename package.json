@@ -10,6 +10,7 @@
     "prod": "rm -r dist && tsc"
   },
   "dependencies": {
+    "@types/cors": "^2.8.15",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "class-transformer": "^0.5.1",

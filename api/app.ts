@@ -1,12 +1,11 @@
 import 'reflect-metadata';
 import 'module-alias/register';
-import * as express from 'express';
+import express from 'express';
 import * as bodyParser from 'body-parser';
 import { rateLimit } from 'express-rate-limit';
 import Container from 'typedi';
 import { ENV_CONFIG } from '../app/config';
 import { Logger } from '../libs/logger';
-import { cors } from 'cors';
 import { config } from 'dotenv';
 import admin from 'firebase-admin';
 import {
@@ -14,6 +13,7 @@ import {
   useContainer as routingContainer,
 } from 'routing-controllers';
 import * as http from 'http';
+import cors from 'cors';
 
 const baseDir = __dirname;
 const expressApp = express();
@@ -43,13 +43,7 @@ admin.initializeApp({
 
 expressApp.use(bodyParser.urlencoded({ extended: false }));
 expressApp.use(bodyParser.json());
-expressApp.use(
-  cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  })
-);
+expressApp.use(cors());
 expressApp.use('/api/v1', limiter);
 expressApp.get('/', (req, res) => {
   res.status(200).json({
