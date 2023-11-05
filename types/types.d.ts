@@ -4,4 +4,5 @@ export type LoggingData = {
   created_at: Timestamp;
   message: string;
   created_by: DecodedIdToken['uid'];
+  created_by_pic: DecodedIdToken['picture'];
 };

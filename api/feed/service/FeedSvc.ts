@@ -26,6 +26,7 @@ export default class LoggingSvc {
       created_at: Timestamp.now(),
       message,
       created_by: user.uid,
+      created_by_pic: user.picture,
     });
   }
 }
