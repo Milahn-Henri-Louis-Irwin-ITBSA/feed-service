@@ -54,7 +54,7 @@ admin.initializeApp({
 
 expressApp.use(bodyParser.urlencoded({ extended: false }));
 expressApp.use(bodyParser.json());
-expressApp.use('/api/v1', limiter);
+expressApp.use('/v1/api', limiter);
 expressApp.get('/', (req, res) => {
   res.status(200).json({
     service: 'feed',
